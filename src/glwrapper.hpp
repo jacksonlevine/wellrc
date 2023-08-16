@@ -5,65 +5,66 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp> 
+#include <glm/gtc/type_ptr.hpp>
 
-struct InputState {
-	bool forward;
-	bool left;
-	bool right;
-	bool back;
-	bool jump;
-	float forwardVelocity;
-	float upVelocity;
-	float rightVelocity;
+struct InputState
+{
+    bool forward;
+    bool left;
+    bool right;
+    bool back;
+    bool jump;
+    float forwardVelocity;
+    float upVelocity;
+    float rightVelocity;
 };
 
-class GLWrapper {
+class GLWrapper
+{
 public:
-	glm::vec3 cameraPos;
-	glm::vec3 cameraTarget;
-	glm::vec3 cameraDirection;
-	glm::vec3 up;
-	glm::vec3 cameraRight;
-	glm::vec3 cameraFront;
-	glm::vec3 cameraUp;
-	float cameraSpeed;
-	float cameraYaw;
-	float cameraPitch;
-	float lastX, lastY;
-	bool firstMouse;
-	glm::mat4 view;
-	glm::mat4 model;
+    glm::vec3 cameraPos;
+    glm::vec3 cameraTarget;
+    glm::vec3 cameraDirection;
+    glm::vec3 up;
+    glm::vec3 cameraRight;
+    glm::vec3 cameraFront;
+    glm::vec3 cameraUp;
+    float cameraSpeed;
+    float cameraYaw;
+    float cameraPitch;
+    float lastX, lastY;
+    bool firstMouse;
+    glm::mat4 view;
+    glm::mat4 model;
 
-	int wi;
-	int he;
+    int wi;
+    int he;
 
-	glm::mat4 projection;
-	glm::mat4 mvp;
-	glm::vec3 direction;
-	GLuint shaderProgram;
-	GLuint vao;
-	GLFWwindow* window;
-	float deltaTime;
-	InputState activeState;
-	GLWrapper();
-	int initializeGL();
-	void setFOV(int newF);
-	void bindGeometry(GLuint vbov, GLuint vboc, GLuint vbouv, const GLfloat* vertices, const GLfloat* colors, const GLfloat* uv, int vsize, int csize, int usize);
-	void bindGeometryNoUpload(GLuint vbov, GLuint vboc, GLuint vbouv);
-	void setupVAO();
-	void bindVAO();
-	void updateOrientation();
-	static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-	static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
-	static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-	static GLWrapper* instance;
+    glm::mat4 projection;
+    glm::mat4 mvp;
+    glm::vec3 direction;
+    GLuint shaderProgram;
+    GLuint vao;
+    GLFWwindow *window;
+    float deltaTime;
+    InputState activeState;
+    GLWrapper();
+    int initializeGL();
+    void setFOV(int newF);
+    void bindGeometry(GLuint vbov, GLuint vboc, GLuint vbouv, const GLfloat *vertices, const GLfloat *colors, const GLfloat *uv, int vsize, int csize, int usize);
+    void bindGeometryNoUpload(GLuint vbov, GLuint vboc, GLuint vbouv);
+    void setupVAO();
+    void bindVAO();
+    void updateOrientation();
+    static void mouse_callback(GLFWwindow *window, double xpos, double ypos);
+    static void mouse_button_callback(GLFWwindow *window, int button, int action, int mods);
+    static void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
+    static GLWrapper *instance;
 };
-
 
 #ifdef JACKS_GL_WRAPPER_IMPLEMENTATION
 
-GLWrapper* GLWrapper::instance = nullptr;
+GLWrapper *GLWrapper::instance = nullptr;
 
 GLWrapper::GLWrapper()
 {
@@ -87,7 +88,7 @@ GLWrapper::GLWrapper()
     instance = this;
 }
 bool captured = false;
-void GLWrapper::mouse_callback(GLFWwindow* window, double xpos, double ypos)
+void GLWrapper::mouse_callback(GLFWwindow *window, double xpos, double ypos)
 {
     if (instance && captured)
     {
@@ -115,18 +116,15 @@ void GLWrapper::mouse_callback(GLFWwindow* window, double xpos, double ypos)
         if (instance->cameraPitch < -89.0f)
             instance->cameraPitch = -89.0f;
 
-
         glm::vec3 front;
         front.x = cos(glm::radians(instance->cameraYaw)) * cos(glm::radians(instance->cameraPitch));
         front.y = sin(glm::radians(instance->cameraPitch));
         front.z = sin(glm::radians(instance->cameraYaw)) * cos(glm::radians(instance->cameraPitch));
         instance->cameraFront = glm::normalize(front);
     }
-
 }
 
-
-void GLWrapper::mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+void GLWrapper::mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
 {
     if (instance)
     {
@@ -140,30 +138,33 @@ void GLWrapper::mouse_button_callback(GLFWwindow* window, int button, int action
             }
             else
             {
-                //Game::instance->onLeftClick();
+                // Game::instance->onLeftClick();
             }
-
         }
         if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
         {
-           // Game::instance->onRightClick();
+            // Game::instance->onRightClick();
         }
     }
 }
 
-void GLWrapper::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+void GLWrapper::keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
     if (instance)
     {
         if (key == GLFW_KEY_W)
         {
-            if (action == GLFW_PRESS) instance->activeState.forward = true;
-            if (action == GLFW_RELEASE) instance->activeState.forward = false;
+            if (action == GLFW_PRESS)
+                instance->activeState.forward = true;
+            if (action == GLFW_RELEASE)
+                instance->activeState.forward = false;
         }
         if (key == GLFW_KEY_SPACE)
         {
-            if (action == GLFW_PRESS) instance->activeState.jump = true;
-            if (action == GLFW_RELEASE) instance->activeState.jump = false;
+            if (action == GLFW_PRESS)
+                instance->activeState.jump = true;
+            if (action == GLFW_RELEASE)
+                instance->activeState.jump = false;
         }
         if (key == GLFW_KEY_ESCAPE)
         {
@@ -180,7 +181,8 @@ void GLWrapper::setFOV(int newFOV)
     projection = glm::perspective(glm::radians((float)newFOV), (float)this->wi / (float)this->he, 0.1f, 5000.0f);
 }
 
-int GLWrapper::initializeGL() {
+int GLWrapper::initializeGL()
+{
     // Initialize GLFW
     if (!glfwInit())
     {
@@ -188,17 +190,16 @@ int GLWrapper::initializeGL() {
         return -1;
     }
 
-    //this->wi = 1900;
-    //this->he = 1000;
+    // this->wi = 1900;
+    // this->he = 1000;
 
     this->wi = 1280;
     this->he = 720;
 
-
     // Set up GLFW window hints
-   // glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    // glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    // glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+    // glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // Create a GLFW window
     window = glfwCreateWindow(wi, he, "RaceCar v0.1", NULL, NULL);
@@ -223,12 +224,11 @@ int GLWrapper::initializeGL() {
     glViewport(0, 0, wi, he);
 
     // Enable depth testing
-    //glDepthMask(GL_TRUE);
+    // glDepthMask(GL_TRUE);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     // Set up GLM for 3D math
     model = glm::mat4(1.0f);
-
 
     projection = glm::perspective(glm::radians(90.0f), (float)wi / (float)he, 0.1f, 5000.0f);
 
@@ -243,7 +243,7 @@ int GLWrapper::initializeGL() {
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 
     // Set vertex shader source code
-    const GLchar* vertexShaderSource =
+    const GLchar *vertexShaderSource =
         "#version 450 core\n"
         "layout (location = 0) in vec3 position;\n"
         "layout (location = 1) in vec3 color;\n"
@@ -276,7 +276,7 @@ int GLWrapper::initializeGL() {
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
     // Set fragment shader source code
-    const GLchar* fragmentShaderSource =
+    const GLchar *fragmentShaderSource =
         "#version 450 core\n"
         "in vec3 vertexColor;\n"
         "in vec2 TexCoord;\n"
@@ -289,7 +289,6 @@ int GLWrapper::initializeGL() {
         "vec4 texColor = texture(ourTexture, TexCoord);\n"
         "if(texColor.a < 0.1){\n"
         "discard;}\n"
-
 
         // Calculate the distance between fragment and camera
 
@@ -336,10 +335,10 @@ int GLWrapper::initializeGL() {
     // Delete shader objects
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
-
 }
 
-void GLWrapper::setupVAO() {
+void GLWrapper::setupVAO()
+{
     // Generate a vertex array object (VAO)
 
     glGenVertexArrays(1, &this->vao);
@@ -347,23 +346,29 @@ void GLWrapper::setupVAO() {
 
     // Use our shader program
     glUseProgram(this->shaderProgram);
-
 }
 
-
-void GLWrapper::bindVAO() {
+void GLWrapper::bindVAO()
+{
     glBindVertexArray(this->vao);
 
     // Use our shader program
     glUseProgram(this->shaderProgram);
 }
-void GLWrapper::bindGeometry(GLuint vbov, GLuint vboc, GLuint vbouv, const GLfloat* vertices, const GLfloat* colors, const GLfloat* uv, int vsize, int csize, int usize) {
+void GLWrapper::bindGeometry(GLuint vbov, GLuint vboc, GLuint vbouv, const GLfloat *vertices, const GLfloat *colors, const GLfloat *uv, int vsize, int csize, int usize)
+{
 
     // Generate a vertex buffer object (VBO) for the position data
-
+    GLenum error;
 
     glBindBuffer(GL_ARRAY_BUFFER, vbov);
     glBufferData(GL_ARRAY_BUFFER, vsize, vertices, GL_STATIC_DRAW);
+
+    error = glGetError();
+    if (error != GL_NO_ERROR)
+    {
+        std::cerr << "OpenGL error after glBindBuffer and glBufferData (vbov): " << error << std::endl;
+    }
     // Set up the vertex attribute pointers for the position buffer object
     GLint pos_attrib = glGetAttribLocation(this->shaderProgram, "position");
     glEnableVertexAttribArray(pos_attrib);
@@ -371,7 +376,11 @@ void GLWrapper::bindGeometry(GLuint vbov, GLuint vboc, GLuint vbouv, const GLflo
     // Generate a vertex buffer object (VBO) for the color data
     glBindBuffer(GL_ARRAY_BUFFER, vboc);
     glBufferData(GL_ARRAY_BUFFER, csize, colors, GL_STATIC_DRAW);
-
+    error = glGetError();
+    if (error != GL_NO_ERROR)
+    {
+        std::cerr << "OpenGL error after glBindBuffer and glBufferData (vboc): " << error << std::endl;
+    }
     // Set up the vertex attribute pointers for the color buffer object
     GLint col_attrib = glGetAttribLocation(this->shaderProgram, "color");
     glEnableVertexAttribArray(col_attrib);
@@ -380,15 +389,20 @@ void GLWrapper::bindGeometry(GLuint vbov, GLuint vboc, GLuint vbouv, const GLflo
     // Generate a vertex buffer object (VBO) for the uv data
     glBindBuffer(GL_ARRAY_BUFFER, vbouv);
     glBufferData(GL_ARRAY_BUFFER, usize, uv, GL_STATIC_DRAW);
+    error = glGetError();
+    if (error != GL_NO_ERROR)
+    {
+        std::cerr << "OpenGL error after glBindBuffer and glBufferData (vbouv): " << error << std::endl;
+    }
 
     // Set up the vertex attribute pointers for the uv buffer object
     GLint uv_attrib = glGetAttribLocation(this->shaderProgram, "uv");
     glEnableVertexAttribArray(uv_attrib);
     glVertexAttribPointer(uv_attrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
-
 }
 
-void GLWrapper::bindGeometryNoUpload(GLuint vbov, GLuint vboc, GLuint vbouv) {
+void GLWrapper::bindGeometryNoUpload(GLuint vbov, GLuint vboc, GLuint vbouv)
+{
 
     glBindBuffer(GL_ARRAY_BUFFER, vbov);
     // Set up the vertex attribute pointers for the position buffer object
@@ -410,10 +424,10 @@ void GLWrapper::bindGeometryNoUpload(GLuint vbov, GLuint vboc, GLuint vbouv) {
     GLint uv_attrib = glGetAttribLocation(this->shaderProgram, "uv");
     glEnableVertexAttribArray(uv_attrib);
     glVertexAttribPointer(uv_attrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
-
 }
 
-void GLWrapper::updateOrientation() {
+void GLWrapper::updateOrientation()
+{
 
     // Calculate the new direction vector based on the yaw and pitch angles
 
@@ -424,13 +438,10 @@ void GLWrapper::updateOrientation() {
     // Normalize the direction vector
     direction = glm::normalize(direction);
     this->cameraDirection = direction;
-    // Set up the view matrix 
+    // Set up the view matrix
     view = glm::lookAt(cameraPos, cameraPos + direction, cameraUp);
 
     mvp = projection * view * model;
-
-
-
 }
 
 #endif

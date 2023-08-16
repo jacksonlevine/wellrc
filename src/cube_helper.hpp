@@ -3,12 +3,9 @@
 #include "textureface.hpp"
 #include <vector>
 
-#ifndef CUBE_ENUM
-#define CUBE_ENUM
 enum CubeFace {
     TOP = 0, BOTTOM, LEFT, RIGHT, FRONT, BACK
 };
-#endif
 
 class Cube {
 public:

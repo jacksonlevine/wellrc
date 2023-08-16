@@ -14,14 +14,26 @@
 #define CUBE_HELPER_IMPLEMENTATION
 #include "cube_helper.hpp"
 
+
 #define NEIGHBORS_IMPLEMENTATION
 #include "inttup_neighbor.hpp"
+
+
+
 
 #define COMPONENT_IMPLEMENTATIONS
 #include "mesh_component.hpp"
 
+
+
 #define CHUNK_IMPLEMENTATION
 #include "chunk_handler.hpp"
+
+#define PERLIN_IMP
+#include "perlin.h"
+
+#define WORLDGEN_IMP
+#include "worldgen.hpp"
 
 #include <entt/entt.hpp>
 #include <cstdlib>
@@ -32,38 +44,26 @@ int waterHeight = -200;
 
 std::unordered_map<IntTup, int, IntTupHash> worldmap;
 
-entt::registry registry;
-
 void prepare_texture();
 
 int main() {
 
+    entt::registry registry;
     wrap.initializeGL();
     wrap.setupVAO();
 
     prepare_texture();
 
-    glClearColor(0.4f, 0.3f, 0.5f, 1.0f);
+    glClearColor(0.5f, 0.5f, 0.8f, 1.0f);
     float deltaTime = 0;
     float lastFrame = 0;
 
     int prevUwv = 0;
+    generate_world(worldmap);
 
-    for(int i = -50; i < 50; i++)
-    {
-        for(int j = 0; j < 50; j++)
-        {
-            for(int k = -50; k < 50; k++)
-            {
-                if(rand() < 100)
-                {
-                    worldmap.insert_or_assign(IntTup(i, j, k), 0);
-                }
-            }
-        }
-    }
 
     Chunk test_chunk(glm::vec2(0,0), registry, wrap, worldmap);
+
     test_chunk.rebuild();
 
     auto meshes_view = registry.view<MeshComponent>();
@@ -75,9 +75,9 @@ int main() {
         if (wrap.activeState.forward)
         {
 
-            wrap.activeState.forwardVelocity = std::min(wrap.activeState.forwardVelocity + deltaTime, 2.0f);
+            wrap.activeState.forwardVelocity = std::min(wrap.activeState.forwardVelocity + deltaTime, 0.7f);
         } else {
-            wrap.activeState.forwardVelocity *= .600f;
+            wrap.activeState.forwardVelocity *= .400f;
         }
 
         if (wrap.activeState.forwardVelocity > 0)
@@ -93,8 +93,8 @@ int main() {
 
         
         wrap.updateOrientation();
-        glBindVertexArray(wrap.vao);
-        glUseProgram(wrap.shaderProgram);
+        //glBindVertexArray(wrap.vao);
+        //glUseProgram(wrap.shaderProgram);
 
         GLuint mvpLoc = glGetUniformLocation(wrap.shaderProgram, "mvp");
         glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(wrap.mvp));

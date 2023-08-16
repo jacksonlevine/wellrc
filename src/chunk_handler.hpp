@@ -23,7 +23,6 @@ public:
     entt::entity id;
     glm::vec2 chunk_position;
     Chunk(glm::vec2 c_pos, entt::registry& r, GLWrapper& w, std::unordered_map<IntTup, int, IntTupHash>& wo);
-
     void rebuild();
 
 private:
@@ -37,7 +36,7 @@ private:
 Chunk::Chunk(glm::vec2 c_pos, entt::registry& r, GLWrapper& w, std::unordered_map<IntTup, int, IntTupHash>& wo)
 : m_reg(r), m_wrap(w), m_world(wo), chunk_position(c_pos) {
     this->id = m_reg.create();
-}
+};
 
 void Chunk::rebuild()
 {
@@ -64,11 +63,11 @@ void Chunk::rebuild()
                 );
                 if(m_world.find(tup) != m_world.end())
                 {
-                    for(Neighbor& n : get_neighbors(tup))
+                    for(Neighbor& neighbor : get_neighbors(tup))
                     {
-                        if(m_world.find(n.tup) == m_world.end())
+                        if(m_world.find(neighbor.tup) == m_world.end())
                         {
-                            Cube::stamp_face(n.face, tup.x, tup.y, tup.z, face, verts, cols, uvs);
+                            Cube::stamp_face(neighbor.face, tup.x, tup.y, tup.z, face, verts, cols, uvs);
                         }
                     }
                 }
@@ -77,8 +76,9 @@ void Chunk::rebuild()
     }
     std::cout << verts.size() << " " << cols.size() << " " << uvs.size() << std::endl;
 
-    if (m_reg.all_of<MeshComponent>(this->id))
+    if (!m_reg.all_of<MeshComponent>(this->id))
 	{
+        std::cout << "You dont have a mesh component" << std::endl;
 		MeshComponent m;
 		m.length = verts.size();
 		m_wrap.bindGeometry(
@@ -95,6 +95,7 @@ void Chunk::rebuild()
 		m_reg.emplace<MeshComponent>(this->id, m);
 	}
 	else {
+        std::cout << "You have a mesh component" << std::endl;
 		MeshComponent& m = m_reg.get<MeshComponent>(this->id);
 		m.length = verts.size();
 		m_wrap.bindGeometry(
