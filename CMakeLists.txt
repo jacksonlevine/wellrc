@@ -11,6 +11,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 target_include_directories(main PUBLIC ${CMAKE_SOURCE_DIR}/include)
 
+find_package(EnTT CONFIG REQUIRED)
+target_link_libraries(main PRIVATE EnTT::EnTT)
 find_package(glfw3 CONFIG REQUIRED)
 target_link_libraries(main PRIVATE glfw)
 find_package(glm CONFIG REQUIRED)
