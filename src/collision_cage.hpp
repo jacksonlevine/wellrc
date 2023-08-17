@@ -13,8 +13,9 @@ public:
     BoundingBox(const glm::vec3 &m_min_corner, const glm::vec3 &m_max_corner, const glm::vec3 &collision_normal);
     BoundingBox(const glm::vec3 &center, const glm::vec3 &collision_normal);
     void set_center(const glm::vec3 &center);
+    void set_center(const glm::vec3 &center, float yextent, float xextent);
     bool intersects(const BoundingBox &other) const;
-    double calculate_penetration(const BoundingBox &other) const;
+    double BoundingBox::get_penetration(const BoundingBox &other) const;
     glm::vec3 collision_normal;
     glm::vec3 center;
 
@@ -25,7 +26,7 @@ private:
 
 #ifdef COLLCAGE_IMP
 
-double BoundingBox::calculatePenetration(const BoundingBox &other) const
+double BoundingBox::get_penetration(const BoundingBox &other) const
 {
     if (!intersects(other))
     {
@@ -53,6 +54,13 @@ void BoundingBox::set_center(const glm::vec3 &center)
 {
     this->m_min_corner = center + glm::vec3(-0.5, -0.5, -0.5);
     this->m_max_corner = center + glm::vec3(0.5, 0.5, 0.5);
+    this->center = center;
+}
+
+void BoundingBox::set_center(const glm::vec3 &center, float yextent, float xextent)
+{
+    this->m_min_corner = center + glm::vec3(-xextent, -yextent, -xextent);
+    this->m_max_corner = center + glm::vec3(xextent, yextent, xextent);
     this->center = center;
 }
 
@@ -99,7 +107,7 @@ public:
     void update_solidity();
     void update_colliding(BoundingBox &user);
     void debug_display();
-    void full_update(glm::vec3 &pos);
+    void full_update(glm::vec3 &pos, BoundingBox &user);
 
 private:
     std::unordered_map<IntTup, int, IntTupHash> &m_world;
@@ -183,6 +191,9 @@ void CollisionCage::update_position(glm::vec3 &pos)
 }
 void CollisionCage::update_solidity()
 {
+    this->solid.clear();
+    
+    std::cout << "SOLID SIZE AFTER CLEARING: " << solid.size() << std::endl;
     for (int i = 0; i < 10; ++i)
     {
         glm::vec3 spot = this->boxes[i].center;
@@ -190,7 +201,11 @@ void CollisionCage::update_solidity()
         Side side = static_cast<Side>(i);
         if (m_world.find(tup) != m_world.end())
         {
-            this->solid.push_back(side);
+            if(std::find(this->solid.begin(), this->solid.end(), side) == solid.end())
+            {
+                this->solid.push_back(side);
+            }
+                
         }
         else
         {
@@ -200,24 +215,48 @@ void CollisionCage::update_solidity()
 }
 void CollisionCage::update_colliding(BoundingBox &user)
 {
+    //RESET
+    this->colliding.clear(); //Clear colliding and penetration
+    std::cout << "COLLIDING SIZE AFTER CLEARING: " << colliding.size() << std::endl;
+    for(int i = 0; i < 10; ++i)
+    {
+        this->penetration[i] = 0.0;
+    }
+
+    //RE-ASSESS
+    for(Side& side : this->solid) //Look through solid boxes
+    {
+        if(user.intersects(this->boxes[side]))
+        {
+            if(std::find(colliding.begin(), colliding.end(), side) == colliding.end())
+            {
+                this->colliding.push_back(side);//Add to colliding
+            }
+            
+            //std::cout << "side id: " << static_cast<int>(side) << std::endl;
+            this->penetration[side] = user.get_penetration(boxes[side]); //Set penetration amount
+        }
+    }
+    std::cout << "colliding size: " <<  this->colliding.size() << std::endl;
 }
 
 CollisionCage::CollisionCage(GLWrapper &wr, std::unordered_map<IntTup, int, IntTupHash> &worldmap, entt::registry &reg)
     : m_world(worldmap), m_wrap(wr), m_reg(reg), boxes{
-                                                     BoundingBox(CollisionCage::positions[0], CollisionCage::normals[0]),
-                                                     BoundingBox(CollisionCage::positions[1], CollisionCage::normals[1]),
-                                                     BoundingBox(CollisionCage::positions[2], CollisionCage::normals[2]),
-                                                     BoundingBox(CollisionCage::positions[3], CollisionCage::normals[3]),
-                                                     BoundingBox(CollisionCage::positions[4], CollisionCage::normals[4]),
-                                                     BoundingBox(CollisionCage::positions[5], CollisionCage::normals[5]),
-                                                     BoundingBox(CollisionCage::positions[6], CollisionCage::normals[6]),
-                                                     BoundingBox(CollisionCage::positions[7], CollisionCage::normals[7]),
-                                                     BoundingBox(CollisionCage::positions[8], CollisionCage::normals[8]),
-                                                     BoundingBox(CollisionCage::positions[9], CollisionCage::normals[9])}
+    BoundingBox(CollisionCage::positions[0], CollisionCage::normals[0]),
+    BoundingBox(CollisionCage::positions[1], CollisionCage::normals[1]),
+    BoundingBox(CollisionCage::positions[2], CollisionCage::normals[2]),
+    BoundingBox(CollisionCage::positions[3], CollisionCage::normals[3]),
+    BoundingBox(CollisionCage::positions[4], CollisionCage::normals[4]),
+    BoundingBox(CollisionCage::positions[5], CollisionCage::normals[5]),
+    BoundingBox(CollisionCage::positions[6], CollisionCage::normals[6]),
+    BoundingBox(CollisionCage::positions[7], CollisionCage::normals[7]),
+    BoundingBox(CollisionCage::positions[8], CollisionCage::normals[8]),
+    BoundingBox(CollisionCage::positions[9], CollisionCage::normals[9])}
 {
 
     penetration = {
-        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+    };
     entities = {
         m_reg.create(),
         m_reg.create(),
@@ -228,7 +267,8 @@ CollisionCage::CollisionCage(GLWrapper &wr, std::unordered_map<IntTup, int, IntT
         m_reg.create(),
         m_reg.create(),
         m_reg.create(),
-        m_reg.create()};
+        m_reg.create()
+    };
 }
 
 const glm::vec3 CollisionCage::normals[10] = {
@@ -265,10 +305,11 @@ const glm::ivec3 CollisionCage::positions[10] = {
     glm::ivec3(0, 0, -1)  // BACKBOTTOM
 };
 
-void CollisionCage::full_update(glm::vec3 &pos)
+void CollisionCage::full_update(glm::vec3 &pos, BoundingBox& user)
 {
     this->update_position(pos);
     this->update_solidity();
+    this->update_colliding(user);
     this->debug_display();
 }
 

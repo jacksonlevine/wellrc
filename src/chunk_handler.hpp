@@ -34,7 +34,7 @@ private:
 #ifdef CHUNK_IMPLEMENTATION
 
 Chunk::Chunk(glm::vec2 c_pos, entt::registry& r, GLWrapper& w, std::unordered_map<IntTup, int, IntTupHash>& wo)
-: m_reg(r), m_wrap(w), m_world(wo), chunk_position(c_pos) {
+    : m_reg(r), m_wrap(w), m_world(wo), chunk_position(c_pos) {
     this->id = m_reg.create();
 };
 
@@ -77,39 +77,39 @@ void Chunk::rebuild()
     std::cout << verts.size() << " " << cols.size() << " " << uvs.size() << std::endl;
 
     if (!m_reg.all_of<MeshComponent>(this->id))
-	{
+    {
         std::cout << "You dont have a mesh component" << std::endl;
-		MeshComponent m;
-		m.length = verts.size();
-		m_wrap.bindGeometry(
-			m.vbov,
-			m.vboc,
-			m.vbouv,
-			verts.data(),
-			cols.data(),
-			uvs.data(),
-			verts.size() * sizeof(GLfloat),
-			cols.size() * sizeof(GLfloat),
-			uvs.size() * sizeof(GLfloat)
-		);
-		m_reg.emplace<MeshComponent>(this->id, m);
-	}
-	else {
+        MeshComponent m;
+        m.length = verts.size();
+        m_wrap.bindGeometry(
+            m.vbov,
+            m.vboc,
+            m.vbouv,
+            verts.data(),
+            cols.data(),
+            uvs.data(),
+            verts.size() * sizeof(GLfloat),
+            cols.size() * sizeof(GLfloat),
+            uvs.size() * sizeof(GLfloat)
+        );
+        m_reg.emplace<MeshComponent>(this->id, m);
+    }
+    else {
         std::cout << "You have a mesh component" << std::endl;
-		MeshComponent& m = m_reg.get<MeshComponent>(this->id);
-		m.length = verts.size();
-		m_wrap.bindGeometry(
-			m.vbov,
-			m.vboc,
-			m.vbouv,
-			verts.data(),
-			cols.data(),
-			uvs.data(),
-			verts.size() * sizeof(GLfloat),
-			cols.size() * sizeof(GLfloat),
-			uvs.size() * sizeof(GLfloat)
-		);
-	}
+        MeshComponent& m = m_reg.get<MeshComponent>(this->id);
+        m.length = verts.size();
+        m_wrap.bindGeometry(
+            m.vbov,
+            m.vboc,
+            m.vbouv,
+            verts.data(),
+            cols.data(),
+            uvs.data(),
+            verts.size() * sizeof(GLfloat),
+            cols.size() * sizeof(GLfloat),
+            uvs.size() * sizeof(GLfloat)
+        );
+    }
 }
 
 #endif

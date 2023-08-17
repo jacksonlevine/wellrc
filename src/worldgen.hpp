@@ -16,11 +16,11 @@ void generate_world(std::unordered_map<IntTup, int, IntTupHash>& worldmap)
 {
     for(int i = -50; i < 50; i++)
     {
-        
+
         for(int k = -50; k < 50; k++)
         {
             int height = (int)noise_func(i,0,k);
-            
+
             for(int j = 0; j < height; j++)
             {
                 worldmap.insert_or_assign(IntTup(i, j, k), 0);

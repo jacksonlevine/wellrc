@@ -54,7 +54,7 @@ int main() {
     entt::registry registry;
     wrap.initializeGL();
     wrap.setupVAO();
-
+    wrap.cameraPos = glm::vec3(0,0,0);
     prepare_texture();
 
     glClearColor(0.5f, 0.5f, 0.8f, 1.0f);
@@ -65,11 +65,13 @@ int main() {
     generate_world(worldmap);
 
 
-                                                                Chunk test_chunk(glm::vec2(0,0), registry, wrap, worldmap);
+    Chunk test_chunk(glm::vec2(0,0), registry, wrap, worldmap);
 
-                                                                test_chunk.rebuild();
+    test_chunk.rebuild();
 
-                                                                CollisionCage cage(wrap, worldmap, registry);
+    CollisionCage cage(wrap, worldmap, registry);
+
+    BoundingBox user(wrap.cameraPos, glm::vec3(0,0,0));
 
     auto meshes_view = registry.view<MeshComponent>();
 
@@ -80,7 +82,7 @@ int main() {
         if (wrap.activeState.forward)
         {
 
-            wrap.activeState.forwardVelocity = std::min(wrap.activeState.forwardVelocity + deltaTime, 0.7f);
+            wrap.activeState.forwardVelocity = std::min(wrap.activeState.forwardVelocity + deltaTime, 0.2f);
         } else {
             wrap.activeState.forwardVelocity *= .400f;
         }
@@ -89,14 +91,39 @@ int main() {
         {
             auto dir = wrap.cameraDirection;
             dir.y = 0;
-            wrap.cameraPos += (dir * wrap.activeState.forwardVelocity) * 0.65f;
+            //wrap.cameraPos += (dir * wrap.activeState.forwardVelocity) * 0.65f;
+
+            glm::vec3 desired_movement = (dir * wrap.activeState.forwardVelocity) * 0.07f;
+            //std::cout << "DESIRED MOVEMENT: " << desired_movement.x << " " << desired_movement.y << " " << desired_movement.z << std::endl;
+            glm::vec3 user_center = wrap.cameraPos + glm::vec3(0, -0.5, 0);
+            //std::cout << "USER CENTER " << user_center.x << " " << user_center.y << " " << user_center.z << std::endl;
+            //std::cout << "USER CENTER WITH RAW MOVE APPLIED: " << (user_center + desired_movement).x << " " << (user_center + desired_movement).y << " " << (user_center + desired_movement).z << std::endl;
+            user.set_center(user_center + desired_movement, 0.3f, 0.7f);
+
+            cage.full_update(wrap.cameraPos + glm::vec3(0, -1, 0), user);
+
+            if(cage.colliding.size() > 0)
+            {
+                for(Side& side : cage.colliding)
+                {
+                    //std::cout << "penet: " << cage.penetration[side] << std::endl;
+                    desired_movement += CollisionCage::normals[side] * (float)cage.penetration[side];
+
+                    //std::cout << "change being made: " << (CollisionCage::normals[side] * (float)cage.penetration[side]).x << " " << (CollisionCage::normals[side] * (float)cage.penetration[side]).y << " " << (CollisionCage::normals[side] * (float)cage.penetration[side]).z << std::endl;
+                }
+                user.set_center(user_center + desired_movement, 0.3f, 0.7f);
+
+            }
+
+            wrap.cameraPos = user.center + glm::vec3(0, 0.5, 0);
+
         }
 
-        cage.full_update(wrap.cameraPos + glm::vec3(0, -1, 0));
+        
 
         int uwV = (wrap.cameraPos.y - 0.15f < waterHeight) ? 1 : 0;
 
-        
+
         wrap.updateOrientation();
         glBindVertexArray(wrap.vao);
         glUseProgram(wrap.shaderProgram);
@@ -122,12 +149,12 @@ int main() {
                 m.vbouv);
 
             glDrawArrays(GL_TRIANGLES, 0, m.length);
-            
+
         }
-        
 
 
-    //std::cout << wrap.cameraPos.x << " " << wrap.cameraPos.y << " " << std::endl;
+
+        //std::cout << wrap.cameraPos.x << " " << wrap.cameraPos.y << " " << std::endl;
         glBindVertexArray(0);
         glfwSwapBuffers(wrap.window);
 

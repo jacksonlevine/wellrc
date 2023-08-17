@@ -3,17 +3,17 @@
 
 struct MeshComponent {
 public:
-	GLuint vbov;
-	GLuint vboc;
-	GLuint vbouv;
-	int length;
-	MeshComponent();
+    GLuint vbov;
+    GLuint vboc;
+    GLuint vbouv;
+    int length;
+    MeshComponent();
 };
 
 #ifdef COMPONENT_IMPLEMENTATIONS
 
 MeshComponent::MeshComponent() : length(0) {
-	glGenBuffers(1, &this->vbov);
+    glGenBuffers(1, &this->vbov);
     GLenum error1 = glGetError();
     if (error1 != GL_NO_ERROR) {
         std::cerr << "OpenGL error after glGenBuffers vbov: " << error1 << std::endl;
