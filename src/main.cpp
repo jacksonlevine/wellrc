@@ -35,6 +35,9 @@
 #define WORLDGEN_IMP
 #include "worldgen.hpp"
 
+#define COLLCAGE_IMP
+#include "collision_cage.hpp"
+
 #include <entt/entt.hpp>
 #include <cstdlib>
 
@@ -62,9 +65,11 @@ int main() {
     generate_world(worldmap);
 
 
-    Chunk test_chunk(glm::vec2(0,0), registry, wrap, worldmap);
+                                                                Chunk test_chunk(glm::vec2(0,0), registry, wrap, worldmap);
 
-    test_chunk.rebuild();
+                                                                test_chunk.rebuild();
+
+                                                                CollisionCage cage(wrap, worldmap, registry);
 
     auto meshes_view = registry.view<MeshComponent>();
 
@@ -87,14 +92,14 @@ int main() {
             wrap.cameraPos += (dir * wrap.activeState.forwardVelocity) * 0.65f;
         }
 
-
+        cage.full_update(wrap.cameraPos + glm::vec3(0, -1, 0));
 
         int uwV = (wrap.cameraPos.y - 0.15f < waterHeight) ? 1 : 0;
 
         
         wrap.updateOrientation();
-        //glBindVertexArray(wrap.vao);
-        //glUseProgram(wrap.shaderProgram);
+        glBindVertexArray(wrap.vao);
+        glUseProgram(wrap.shaderProgram);
 
         GLuint mvpLoc = glGetUniformLocation(wrap.shaderProgram, "mvp");
         glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(wrap.mvp));
@@ -123,7 +128,7 @@ int main() {
 
 
     //std::cout << wrap.cameraPos.x << " " << wrap.cameraPos.y << " " << std::endl;
-
+        glBindVertexArray(0);
         glfwSwapBuffers(wrap.window);
 
 
