@@ -21,7 +21,7 @@ void generate_world(std::unordered_map<IntTup, int, IntTupHash>& worldmap)
         {
             int height = (int)noise_func(i,0,k);
 
-            for(int j = 0; j < height; j++)
+            for(int j = 0; j < 10 + height; j++)
             {
                 worldmap.insert_or_assign(IntTup(i, j, k), 0);
             }

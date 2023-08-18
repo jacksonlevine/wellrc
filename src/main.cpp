@@ -18,7 +18,7 @@
 #define NEIGHBORS_IMPLEMENTATION
 #include "inttup_neighbor.hpp"
 
-
+#define GRAV 9.81f
 
 
 #define COMPONENT_IMPLEMENTATIONS
@@ -54,7 +54,7 @@ int main() {
     entt::registry registry;
     wrap.initializeGL();
     wrap.setupVAO();
-    wrap.cameraPos = glm::vec3(0,0,0);
+    wrap.cameraPos = glm::vec3(0,40,0);
     prepare_texture();
 
     glClearColor(0.5f, 0.5f, 0.8f, 1.0f);
@@ -63,6 +63,7 @@ int main() {
 
     int prevUwv = 0;
     generate_world(worldmap);
+
 
 
     Chunk test_chunk(glm::vec2(0,0), registry, wrap, worldmap);
@@ -87,20 +88,30 @@ int main() {
             wrap.activeState.forwardVelocity *= .400f;
         }
 
-        if (wrap.activeState.forwardVelocity > 0)
-        {
-            auto dir = wrap.cameraDirection;
-            dir.y = 0;
-            //wrap.cameraPos += (dir * wrap.activeState.forwardVelocity) * 0.65f;
+        cage.update_readings(wrap.cameraPos + glm::vec3(0, -0.9, 0));
 
-            glm::vec3 desired_movement = (dir * wrap.activeState.forwardVelocity) * 0.07f;
+        if(std::find(cage.solid.begin(), cage.solid.end(), FLOOR) == cage.solid.end())
+        {
+            wrap.activeState.upVelocity = -(GRAV * deltaTime);
+        }
+
+        if (wrap.activeState.forwardVelocity != 0 || wrap.activeState.upVelocity != 0)
+        {
+            
+            glm::vec3 up_dir(0,1,0);
+            glm::vec3 forward_dir = wrap.cameraDirection;
+
+            forward_dir.y = 0;
+            //wrap.cameraPos += (dir * wrap.activeState.forwardVelocity) * 0.65f;
+            glm::vec3 upward_change = (up_dir * wrap.activeState.upVelocity);
+            glm::vec3 desired_movement = upward_change + (forward_dir * wrap.activeState.forwardVelocity) * 0.07f;
             //std::cout << "DESIRED MOVEMENT: " << desired_movement.x << " " << desired_movement.y << " " << desired_movement.z << std::endl;
             glm::vec3 user_center = wrap.cameraPos + glm::vec3(0, -0.5, 0);
             //std::cout << "USER CENTER " << user_center.x << " " << user_center.y << " " << user_center.z << std::endl;
             //std::cout << "USER CENTER WITH RAW MOVE APPLIED: " << (user_center + desired_movement).x << " " << (user_center + desired_movement).y << " " << (user_center + desired_movement).z << std::endl;
-            user.set_center(user_center + desired_movement, 0.3f, 0.7f);
+            user.set_center(user_center + desired_movement, 0.3f, 0.999f);
 
-            cage.full_update(wrap.cameraPos + glm::vec3(0, -1, 0), user);
+            cage.update_colliding(user);
 
             if(cage.colliding.size() > 0)
             {
@@ -108,10 +119,16 @@ int main() {
                 {
                     //std::cout << "penet: " << cage.penetration[side] << std::endl;
                     desired_movement += CollisionCage::normals[side] * (float)cage.penetration[side];
-
+                    
+                    if(side == FLOOR)
+                    {
+                        std::cout << "FLOOR";
+                        wrap.activeState.upVelocity = 0;
+                        desired_movement -= upward_change;
+                    }
                     //std::cout << "change being made: " << (CollisionCage::normals[side] * (float)cage.penetration[side]).x << " " << (CollisionCage::normals[side] * (float)cage.penetration[side]).y << " " << (CollisionCage::normals[side] * (float)cage.penetration[side]).z << std::endl;
                 }
-                user.set_center(user_center + desired_movement, 0.3f, 0.7f);
+                user.set_center(user_center + desired_movement, 0.3f, 0.999f);
 
             }
 
