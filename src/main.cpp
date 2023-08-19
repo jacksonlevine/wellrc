@@ -145,7 +145,7 @@ Chunk test_chunk(glm::vec2(i,k), registry, wrap, worldmap);
             glm::vec3 user_center = wrap.cameraPos + glm::vec3(0, -0.5, 0);
             //std::cout << "USER CENTER " << user_center.x << " " << user_center.y << " " << user_center.z << std::endl;
             //std::cout << "USER CENTER WITH RAW MOVE APPLIED: " << (user_center + desired_movement).x << " " << (user_center + desired_movement).y << " " << (user_center + desired_movement).z << std::endl;
-            user.set_center(user_center + desired_movement,  0.999f , 0.3f);
+            user.set_center(user_center + desired_movement,  0.85f , 0.3f);
 
             cage.update_colliding(user);
 
@@ -165,7 +165,7 @@ Chunk test_chunk(glm::vec2(i,k), registry, wrap, worldmap);
                     }
                     //std::cout << "change being made: " << (CollisionCage::normals[side] * (float)cage.penetration[side]).x << " " << (CollisionCage::normals[side] * (float)cage.penetration[side]).y << " " << (CollisionCage::normals[side] * (float)cage.penetration[side]).z << std::endl;
                 }
-                user.set_center(user_center + desired_movement, 0.999f , 0.3f);
+                user.set_center(user_center + desired_movement, 0.85f , 0.3f);
 
             }
             //if(glm::distance(user.center + glm::vec3(0, 0.5, 0),wrap.cameraPos) < 0.5f )
