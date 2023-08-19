@@ -49,6 +49,8 @@ std::unordered_map<IntTup, int, IntTupHash> worldmap;
 
 void prepare_texture();
 
+bool grounded = false;
+
 int main() {
 
     entt::registry registry;
@@ -89,20 +91,43 @@ Chunk test_chunk(glm::vec2(i,k), registry, wrap, worldmap);
         if (wrap.activeState.forward)
         {
 
-            wrap.activeState.forwardVelocity = std::min(wrap.activeState.forwardVelocity + deltaTime, 0.2f);
+            wrap.activeState.forwardVelocity = std::min(wrap.activeState.forwardVelocity + (25.0f*deltaTime), 5.0f);
         } else {
             wrap.activeState.forwardVelocity *= .400f;
         }
 
         cage.update_readings(wrap.cameraPos + glm::vec3(0, -1.0, 0));
-        if(wrap.activeState.jump)
+        if(wrap.activeState.jump && grounded)
         {
-            wrap.activeState.upVelocity += 1.0f;
+            wrap.activeState.upVelocity += 10.0f;
+            grounded = false;
             wrap.activeState.jump = false;
         }
+
+
+
+
+
+
+
+
         if(std::find(cage.solid.begin(), cage.solid.end(), FLOOR) == cage.solid.end())
+    {
+        grounded = false;
+    }
+
+
+
+
+
+
+
+
+
+        if(!grounded)
         {
-            wrap.activeState.upVelocity = std::max(wrap.activeState.upVelocity -(GRAV * deltaTime), -(GRAV * deltaTime));
+            wrap.activeState.upVelocity = std::max(wrap.activeState.upVelocity + ((GRAV * -deltaTime) * 0.020f), -(GRAV * deltaTime));
+            wrap.activeState.upVelocity = std::min(wrap.activeState.upVelocity, (GRAV * deltaTime)*3.0f);
         }
 
         if (wrap.activeState.forwardVelocity != 0 || wrap.activeState.upVelocity != 0)
@@ -114,7 +139,8 @@ Chunk test_chunk(glm::vec2(i,k), registry, wrap, worldmap);
             forward_dir.y = 0;
             //wrap.cameraPos += (dir * wrap.activeState.forwardVelocity) * 0.65f;
             glm::vec3 upward_change = (up_dir * wrap.activeState.upVelocity);
-            glm::vec3 desired_movement = upward_change + (forward_dir * wrap.activeState.forwardVelocity) * 0.07f;
+            glm::vec3 forward_change = ((forward_dir * wrap.activeState.forwardVelocity) * deltaTime);
+            glm::vec3 desired_movement = upward_change + forward_change;
             //std::cout << "DESIRED MOVEMENT: " << desired_movement.x << " " << desired_movement.y << " " << desired_movement.z << std::endl;
             glm::vec3 user_center = wrap.cameraPos + glm::vec3(0, -0.5, 0);
             //std::cout << "USER CENTER " << user_center.x << " " << user_center.y << " " << user_center.z << std::endl;
@@ -132,9 +158,10 @@ Chunk test_chunk(glm::vec2(i,k), registry, wrap, worldmap);
                     
                     if(side == FLOOR)
                     {
-                        std::cout << "FLOOR";
+                        //std::cout << "FLOOR";
                         wrap.activeState.upVelocity = 0;
                         desired_movement -= upward_change;
+                        grounded = true;
                     }
                     //std::cout << "change being made: " << (CollisionCage::normals[side] * (float)cage.penetration[side]).x << " " << (CollisionCage::normals[side] * (float)cage.penetration[side]).y << " " << (CollisionCage::normals[side] * (float)cage.penetration[side]).z << std::endl;
                 }

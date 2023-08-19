@@ -202,10 +202,7 @@ void CollisionCage::update_solidity()
         {
             if(std::find(this->solid.begin(), this->solid.end(), side) == solid.end())
             {
-                if(static_cast<int>(side) == 1)
-                {
-                    std::cout << "SOLID" << static_cast<int>(side) << std::endl;
-                }
+                
                 this->solid.push_back(side);
             }
                 
@@ -228,21 +225,13 @@ void CollisionCage::update_colliding(BoundingBox &user)
     //RE-ASSESS
     for(Side& side : this->solid) //Look through solid boxes
     {
-        if(static_cast<int>(side) == 1)
-                {
-                    std::cout << "TESTING" << static_cast<int>(side) << std::endl;
-                    std::cout << "Your pos " << user.center.x << " " << user.center.y << " " << user.center.z << std::endl;
-                    std::cout << "BOTTOM center" << this->boxes[side].center.x << " " << this->boxes[side].center.y << " " << this->boxes[side].center.z << std::endl;
-                }
+       
 
         if(user.intersects(this->boxes[side]))
         {
             if(std::find(colliding.begin(), colliding.end(), side) == colliding.end())
             {
-                if(static_cast<int>(side) == 1)
-                {
-                    std::cout << "COLLIDING" << static_cast<int>(side) << std::endl;
-                }
+                
                 
                 this->colliding.push_back(side);//Add to colliding
             }
