@@ -156,7 +156,7 @@ void CollisionCage::debug_display()
         {
             Cube::stamp_face(static_cast<CubeFace>(i),
                              cent.x, cent.y, cent.z,
-                             TextureFace(7, 3),
+                             TextureFace(10,10),
                              verts,
                              cols,
                              uvs);

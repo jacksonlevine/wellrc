@@ -38,6 +38,9 @@
 #define COLLCAGE_IMP
 #include "collision_cage.hpp"
 
+#define GUITEXT_IMP
+#include "gui_text.hpp"
+
 #include <entt/entt.hpp>
 #include <cstdlib>
 
@@ -49,7 +52,22 @@ std::unordered_map<IntTup, int, IntTupHash> worldmap;
 
 void prepare_texture();
 
+std::string show_vars;
+
 bool grounded = false;
+bool prev_grounded = true;
+
+void update_show_vars()
+{
+    if (grounded != prev_grounded)
+    {
+        show_vars = "grounded: ";
+        show_vars += grounded ? "true" : "false";
+        show_vars += "\n";
+        prev_grounded = grounded;
+    }
+}
+
 
 int main() {
 
@@ -95,7 +113,7 @@ Chunk test_chunk(glm::vec2(i,k), registry, wrap, worldmap);
         } else {
             wrap.activeState.forwardVelocity *= .400f;
         }
-
+        update_show_vars();
         cage.update_readings(wrap.cameraPos + glm::vec3(0, -1.0, 0));
         if(wrap.activeState.jump && grounded)
         {
@@ -207,7 +225,7 @@ Chunk test_chunk(glm::vec2(i,k), registry, wrap, worldmap);
             glDrawArrays(GL_TRIANGLES, 0, m.length);
 
         }
-
+        draw_text((std::string("Wellrc v0.1\n") + show_vars).c_str(), -0.95f, 0.95f);
 
 
         //std::cout << wrap.cameraPos.x << " " << wrap.cameraPos.y << " " << std::endl;
