@@ -56,7 +56,7 @@ int main() {
     entt::registry registry;
     wrap.initializeGL();
     wrap.setupVAO();
-    wrap.cameraPos = glm::vec3(0,40,0);
+    wrap.cameraPos = glm::vec3(0,80,0);
     prepare_texture();
 
     glClearColor(0.5f, 0.5f, 0.8f, 1.0f);
@@ -99,7 +99,7 @@ Chunk test_chunk(glm::vec2(i,k), registry, wrap, worldmap);
         cage.update_readings(wrap.cameraPos + glm::vec3(0, -1.0, 0));
         if(wrap.activeState.jump && grounded)
         {
-            wrap.activeState.upVelocity += 10.0f;
+            wrap.activeState.upVelocity += 5.0f;
             grounded = false;
             wrap.activeState.jump = false;
         }
@@ -127,7 +127,7 @@ Chunk test_chunk(glm::vec2(i,k), registry, wrap, worldmap);
         if(!grounded)
         {
             wrap.activeState.upVelocity = std::max(wrap.activeState.upVelocity + ((GRAV * -deltaTime) * 0.020f), -(GRAV * deltaTime));
-            wrap.activeState.upVelocity = std::min(wrap.activeState.upVelocity, (GRAV * deltaTime)*3.0f);
+            wrap.activeState.upVelocity = std::min(wrap.activeState.upVelocity, (GRAV * deltaTime)*2.0f);
         }
 
         if (wrap.activeState.forwardVelocity != 0 || wrap.activeState.upVelocity != 0)
@@ -223,11 +223,11 @@ Chunk test_chunk(glm::vec2(i,k), registry, wrap, worldmap);
         {
             if (uwV == 1)
             {
-                queueFOV = 70;
+                queueFOV = 40;
             }
             else
             {
-                queueFOV = 90;
+                queueFOV = 75;
             }
             prevUwv = uwV;
         }

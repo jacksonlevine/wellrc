@@ -193,8 +193,8 @@ int GLWrapper::initializeGL()
     // this->wi = 1900;
     // this->he = 1000;
 
-    this->wi = 1280;
-    this->he = 720;
+    this->wi = 1900;
+    this->he = 1060;
 
     // Set up GLFW window hints
     // glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -202,7 +202,7 @@ int GLWrapper::initializeGL()
     // glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // Create a GLFW window
-    window = glfwCreateWindow(wi, he, "RaceCar v0.1", NULL, NULL);
+    window = glfwCreateWindow(wi, he, "Wellrc v0.1", NULL, NULL);
     if (!this->window)
     {
         std::cerr << "Failed to create GLFW window" << std::endl;
@@ -230,7 +230,7 @@ int GLWrapper::initializeGL()
     // Set up GLM for 3D math
     model = glm::mat4(1.0f);
 
-    projection = glm::perspective(glm::radians(90.0f), (float)wi / (float)he, 0.1f, 5000.0f);
+    projection = glm::perspective(glm::radians(75.0f), (float)wi / (float)he, 0.1f, 5000.0f);
 
     // Enable pointer-locking first-person controls
     glfwSetInputMode(this->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);

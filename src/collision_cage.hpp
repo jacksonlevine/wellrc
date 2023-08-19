@@ -88,7 +88,22 @@ enum Side
     FRONTBOTTOM,
 
     BACKTOP,
-    BACKBOTTOM
+    BACKBOTTOM,
+
+    //Now the corners set
+
+    BACKRIGHTTOP,
+    BACKRIGHTBOTTOM,
+
+    BACKLEFTTOP,
+    BACKLEFTBOTTOM,
+
+    FRONTRIGHTTOP,
+    FRONTRIGHTBOTTOM,
+
+    FRONTLEFTTOP,
+    FRONTLEFTBOTTOM
+
 };
 
 class CollisionCage
@@ -97,11 +112,11 @@ public:
     std::vector<Side> colliding;
     std::vector<Side> solid;
     glm::ivec3 position;
-    std::array<BoundingBox, 10> boxes;
-    std::array<double, 10> penetration;
-    std::array<entt::entity, 10> entities;
-    static const glm::vec3 normals[10];
-    static const glm::ivec3 positions[10];
+    std::array<BoundingBox, 18> boxes;
+    std::array<double, 18> penetration;
+    std::array<entt::entity, 18> entities;
+    static const glm::vec3 normals[18];
+    static const glm::ivec3 positions[18];
     CollisionCage(GLWrapper &wr, std::unordered_map<IntTup, int, IntTupHash> &worldmap, entt::registry &reg);
     void update_position(glm::vec3 &pos);
     void update_solidity();
@@ -184,7 +199,7 @@ void CollisionCage::debug_display()
 void CollisionCage::update_position(glm::vec3 &pos)
 {
     this->position = glm::ivec3(static_cast<int>(std::round(pos.x)), static_cast<int>(std::round(pos.y)), static_cast<int>(std::round(pos.z)));
-    for (int i = 0; i < 10; ++i)
+    for (int i = 0; i < 18; ++i)
     {
         this->boxes[i].set_center(CollisionCage::positions[i] + this->position);
     }
@@ -193,7 +208,7 @@ void CollisionCage::update_solidity()
 {
     this->solid.clear();
     
-    for (int i = 0; i < 10; ++i)
+    for (int i = 0; i < 18; ++i)
     {
         glm::vec3 spot = this->boxes[i].center;
         IntTup tup(spot.x, spot.y, spot.z);
@@ -217,7 +232,7 @@ void CollisionCage::update_colliding(BoundingBox &user)
 {
     //RESET
     this->colliding.clear(); //Clear colliding and penetration
-    for(int i = 0; i < 10; ++i)
+    for(int i = 0; i < 18; ++i)
     {
         this->penetration[i] = 0.0;
     }
@@ -254,11 +269,22 @@ CollisionCage::CollisionCage(GLWrapper &wr, std::unordered_map<IntTup, int, IntT
     BoundingBox(CollisionCage::positions[6], CollisionCage::normals[6]),
     BoundingBox(CollisionCage::positions[7], CollisionCage::normals[7]),
     BoundingBox(CollisionCage::positions[8], CollisionCage::normals[8]),
-    BoundingBox(CollisionCage::positions[9], CollisionCage::normals[9])}
+    BoundingBox(CollisionCage::positions[9], CollisionCage::normals[9]),
+
+    BoundingBox(CollisionCage::positions[10], CollisionCage::normals[10]),
+    BoundingBox(CollisionCage::positions[11], CollisionCage::normals[11]),
+    BoundingBox(CollisionCage::positions[12], CollisionCage::normals[12]),
+    BoundingBox(CollisionCage::positions[13], CollisionCage::normals[13]),
+    BoundingBox(CollisionCage::positions[14], CollisionCage::normals[14]),
+    BoundingBox(CollisionCage::positions[15], CollisionCage::normals[15]),
+    BoundingBox(CollisionCage::positions[16], CollisionCage::normals[16]),
+    BoundingBox(CollisionCage::positions[17], CollisionCage::normals[17]),
+    }
 {
 
     penetration = {
-        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 //Corners
     };
     entities = {
         m_reg.create(),
@@ -270,11 +296,21 @@ CollisionCage::CollisionCage(GLWrapper &wr, std::unordered_map<IntTup, int, IntT
         m_reg.create(),
         m_reg.create(),
         m_reg.create(),
+        m_reg.create(),
+
+        //Corners
+        m_reg.create(),
+        m_reg.create(),
+        m_reg.create(),
+        m_reg.create(),
+        m_reg.create(),
+        m_reg.create(),
+        m_reg.create(),
         m_reg.create()
     };
 }
 
-const glm::vec3 CollisionCage::normals[10] = {
+const glm::vec3 CollisionCage::normals[18] = {
     glm::vec3(0, -1, 0), // TOp/roof
     glm::vec3(0, 1, 0),  // BOTTOM/floor
 
@@ -288,10 +324,22 @@ const glm::vec3 CollisionCage::normals[10] = {
     glm::vec3(0, 0, -1), // FRONTBOTTOM
 
     glm::vec3(0, 0, 1), // BACKTOP
-    glm::vec3(0, 0, 1)  // BACKBOTTOM
+    glm::vec3(0, 0, 1),  // BACKBOTTOM
+
+    glm::vec3(-0.7071, 0, 0.7071),    //BACKRIGHTTOP,
+    glm::vec3(-0.7071, 0, 0.7071),  //BACKRIGHTBOTTOM,
+
+    glm::vec3(0.7071, 0, 0.7071),//BACKLEFTTOP,
+    glm::vec3(0.7071, 0, 0.7071),//BACKLEFTBOTTOM,
+
+    glm::vec3(-0.7071, 0, -0.7071),//FRONTRIGHTTOP,
+    glm::vec3(-0.7071, 0, -0.7071),//FRONTRIGHTBOTTOM,
+
+    glm::vec3(0.7071, 0, -0.7071),//FRONTLEFTTOP,
+    glm::vec3(0.7071, 0, -0.7071)//FRONTLEFTBOTTOM
 };
 
-const glm::ivec3 CollisionCage::positions[10] = {
+const glm::ivec3 CollisionCage::positions[18] = {
     glm::ivec3(0, 2, 0),  // TOp/roof
     glm::ivec3(0, -1, 0), // BOTTOM/floor
 
@@ -305,14 +353,26 @@ const glm::ivec3 CollisionCage::positions[10] = {
     glm::ivec3(0, 0, 1), // FRONTBOTTOM
 
     glm::ivec3(0, 1, -1), // BACKTOP
-    glm::ivec3(0, 0, -1)  // BACKBOTTOM
+    glm::ivec3(0, 0, -1),  // BACKBOTTOM
+
+    glm::ivec3(1, 1, -1),    //BACKRIGHTTOP,
+    glm::ivec3(1, 0, -1),//BACKRIGHTBOTTOM,
+
+    glm::ivec3(-1, 1, -1),//BACKLEFTTOP,
+    glm::ivec3(-1, 0, -1),//BACKLEFTBOTTOM,
+
+    glm::ivec3(1, 1, 1),//FRONTRIGHTTOP,
+    glm::ivec3(1, 0, 1),//FRONTRIGHTBOTTOM,
+
+    glm::ivec3(-1, 1, 1),//FRONTLEFTTOP,
+    glm::ivec3(-1, 0, 1)//FRONTLEFTBOTTOM
 };
 
 void CollisionCage::update_readings(glm::vec3 &pos)
 {
     this->update_position(pos);
     this->update_solidity();
-    this->debug_display();
+    //this->debug_display();
 }
 
 #endif
