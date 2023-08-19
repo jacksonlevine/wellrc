@@ -74,11 +74,11 @@ void Chunk::rebuild()
             }
         }
     }
-    std::cout << verts.size() << " " << cols.size() << " " << uvs.size() << std::endl;
+    //std::cout << verts.size() << " " << cols.size() << " " << uvs.size() << std::endl;
 
     if (!m_reg.all_of<MeshComponent>(this->id))
     {
-        std::cout << "You dont have a mesh component" << std::endl;
+        //std::cout << "You dont have a mesh component" << std::endl;
         MeshComponent m;
         m.length = verts.size();
         m_wrap.bindGeometry(
@@ -95,7 +95,7 @@ void Chunk::rebuild()
         m_reg.emplace<MeshComponent>(this->id, m);
     }
     else {
-        std::cout << "You have a mesh component" << std::endl;
+        //std::cout << "You have a mesh component" << std::endl;
         MeshComponent& m = m_reg.get<MeshComponent>(this->id);
         m.length = verts.size();
         m_wrap.bindGeometry(
