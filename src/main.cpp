@@ -49,29 +49,82 @@ GLWrapper wrap;
 int waterHeight = -200;
 
 std::unordered_map<IntTup, int, IntTupHash> worldmap;
+entt::registry registry;
 
+CollisionCage cage(wrap, worldmap, registry);
 void prepare_texture();
 
 std::string show_vars;
 
 bool grounded = false;
-bool prev_grounded = true;
+
+std::string debug_sides[18] =
+{
+    "ROOF",
+    "FLOOR",
+
+    "LEFTTOP",
+    "LEFTBOTTOM",
+
+    "RIGHTTOP",
+    "RIGHTBOTTOM",
+
+    "FRONTTOP",
+    "FRONTBOTTOM",
+
+    "BACKTOP",
+    "BACKBOTTOM",
+
+    "BACKRIGHTTOP",
+    "BACKRIGHTBOTTOM",
+
+    "BACKLEFTTOP",
+    "BACKLEFTBOTTOM",
+
+    "FRONTRIGHTTOP",
+    "FRONTRIGHTBOTTOM",
+
+    "FRONTLEFTTOP",
+    "FRONTLEFTBOTTOM"
+
+};
 
 void update_show_vars()
 {
+    static bool prev_grounded = true;
+
+    
+    std::string sides = "";
+    static std::string prev_sides = "";
+
+static std::string just_grounded = "";
     if (grounded != prev_grounded)
     {
         show_vars = "grounded: ";
         show_vars += grounded ? "true" : "false";
         show_vars += "\n";
         prev_grounded = grounded;
+        prev_sides = "";
+        just_grounded = show_vars;
+    }
+
+    for(Side &s : cage.colliding)
+    {
+        (sides += debug_sides[s]) += " ";
+    }
+
+    if(sides != prev_sides) {
+        show_vars = just_grounded;
+        prev_sides = sides;
+        show_vars += "\n";
+        show_vars += sides;
     }
 }
 
 
 int main() {
 
-    entt::registry registry;
+
     wrap.initializeGL();
     wrap.setupVAO();
     wrap.cameraPos = glm::vec3(0,80,0);
@@ -83,6 +136,8 @@ int main() {
 
     int prevUwv = 0;
     generate_world(worldmap);
+
+    float user_width_half = 0.2f;
 
 
     for(int i = -3; i < 3; ++i)
@@ -96,7 +151,6 @@ Chunk test_chunk(glm::vec2(i,k), registry, wrap, worldmap);
     }
     
 
-    CollisionCage cage(wrap, worldmap, registry);
 
     BoundingBox user(wrap.cameraPos, glm::vec3(0,0,0));
 
@@ -163,7 +217,7 @@ Chunk test_chunk(glm::vec2(i,k), registry, wrap, worldmap);
             glm::vec3 user_center = wrap.cameraPos + glm::vec3(0, -0.5, 0);
             //std::cout << "USER CENTER " << user_center.x << " " << user_center.y << " " << user_center.z << std::endl;
             //std::cout << "USER CENTER WITH RAW MOVE APPLIED: " << (user_center + desired_movement).x << " " << (user_center + desired_movement).y << " " << (user_center + desired_movement).z << std::endl;
-            user.set_center(user_center + desired_movement,  0.85f , 0.3f);
+            user.set_center(user_center + desired_movement,  0.85f , user_width_half);
 
             cage.update_colliding(user);
 
@@ -183,7 +237,7 @@ Chunk test_chunk(glm::vec2(i,k), registry, wrap, worldmap);
                     }
                     //std::cout << "change being made: " << (CollisionCage::normals[side] * (float)cage.penetration[side]).x << " " << (CollisionCage::normals[side] * (float)cage.penetration[side]).y << " " << (CollisionCage::normals[side] * (float)cage.penetration[side]).z << std::endl;
                 }
-                user.set_center(user_center + desired_movement, 0.85f , 0.3f);
+                user.set_center(user_center + desired_movement, 0.85f , user_width_half);
 
             }
             //if(glm::distance(user.center + glm::vec3(0, 0.5, 0),wrap.cameraPos) < 0.5f )
