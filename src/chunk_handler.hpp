@@ -48,8 +48,8 @@ void Chunk::rebuild()
     uvs.reserve(10000);
     int half = CHUNK_WIDTH / 2;
     TextureFace face(4,3);
-
     IntTup tup(0,0,0);
+    
     for(int i = -half; i < half; ++i)
     {
         for(int j = 0; j < CHUNK_HEIGHT; ++j)
@@ -97,6 +97,14 @@ void Chunk::rebuild()
     else {
         //std::cout << "You have a mesh component" << std::endl;
         MeshComponent& m = m_reg.get<MeshComponent>(this->id);
+
+        glDeleteBuffers(1, &m.vbov);
+        glDeleteBuffers(1, &m.vbouv);
+        glDeleteBuffers(1, &m.vboc);
+        glGenBuffers(1, &m.vbov);
+        glGenBuffers(1, &m.vbouv);
+        glGenBuffers(1, &m.vboc); //delete and re-gen because the buffer might be different sized
+
         m.length = verts.size();
         m_wrap.bindGeometry(
             m.vbov,

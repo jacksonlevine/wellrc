@@ -90,8 +90,6 @@ enum Side
     BACKTOP,
     BACKBOTTOM,
 
-    //Now the corners set
-
     BACKRIGHTTOP,
     BACKRIGHTBOTTOM,
 
