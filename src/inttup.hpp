@@ -10,9 +10,12 @@ public:
     int z;
     IntTup(int x, int y, int z);
     IntTup(int x, int z);
+    IntTup();
     void set(int x, int y, int z);
     void set(int x, int z);
     bool operator==(const IntTup& other) const;
+    bool operator!=(const IntTup& other) const;
+    IntTup& operator=(const IntTup& other);
     IntTup& operator+=(const IntTup& other);
 
 };
@@ -27,6 +30,13 @@ struct IntTupHash {
 };
 
 #ifdef INTTUP_IMPLEMENTATION
+
+IntTup::IntTup()
+{
+    this->x = 0;
+    this->y = 0;
+    this->z = 0;
+}
 
 void IntTup::set(int nx, int ny, int nz)
 {
@@ -46,12 +56,25 @@ bool IntTup::operator==(const IntTup& other) const {
     return (x == other.x) && (y == other.y) && (z == other.z);
 }
 
+bool IntTup::operator!=(const IntTup& other) const {
+    return (x != other.x) || (y != other.y) || (z != other.z);
+}
+
 IntTup& IntTup::operator+=(const IntTup& other)
 {
     x += other.x;
     y += other.y;
     z += other.z;
 
+    return *this;
+}
+
+IntTup& IntTup::operator=(const IntTup& other) {
+    if (this != &other) {
+        x = other.x;
+        y = other.y;
+        z = other.z;
+    }
     return *this;
 }
 
