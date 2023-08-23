@@ -26,7 +26,7 @@ public:
     Chunk(glm::vec2 c_pos, entt::registry& r, GLWrapper& w, std::unordered_map<IntTup, int, IntTupHash>& wo);
     
     Chunk& operator=(const Chunk& other);
-    void rebuild();
+    Chunk& rebuild();
     void move_to(IntTup ipos);
 
 private:
@@ -44,7 +44,7 @@ Chunk::Chunk(glm::vec2 c_pos, entt::registry& r, GLWrapper& w, std::unordered_ma
 
 Chunk::Chunk()
 {
-    
+
 }
 Chunk& Chunk::operator=(const Chunk& other) {
     this->m_reg = other.m_reg;
@@ -60,7 +60,7 @@ void Chunk::move_to(IntTup ipos)
     this->chunk_position = glm::vec2(ipos.x, ipos.z);
 }
 
-void Chunk::rebuild()
+Chunk& Chunk::rebuild()
 {
     std::vector<GLfloat> verts;
     std::vector<GLfloat> cols;
@@ -140,6 +140,7 @@ void Chunk::rebuild()
             uvs.size() * sizeof(GLfloat)
         );
     }
+    return *this;
 }
 
 #endif

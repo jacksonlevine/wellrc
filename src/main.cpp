@@ -41,8 +41,8 @@
 #define GUITEXT_IMP
 #include "gui_text.hpp"
 
-#define CHUNKFORMATION_IMP
-#include "chunk_formation.hpp"
+//#define CHUNKFORMATION_IMP
+//#include "chunk_formation.hpp"
 
 #include <entt/entt.hpp>
 #include <cstdlib>
@@ -55,7 +55,7 @@ std::unordered_map<IntTup, int, IntTupHash> worldmap;
 entt::registry registry;
 
 CollisionCage cage(wrap, worldmap, registry);
-ChunkFormation cformation(wrap, worldmap, registry);
+//ChunkFormation cformation(wrap, worldmap, registry);
 
 
 
@@ -128,6 +128,14 @@ static std::string just_grounded = "";
     }
 }
 
+const int world_width = 6;
+Chunk world[world_width][world_width];
+
+Chunk& get_chunk_from_world(int x, int z)
+{
+    return world[x+(world_width/2)][z+(world_width/2)];
+}
+
 
 int main() {
 
@@ -147,15 +155,13 @@ int main() {
     float user_width_half = 0.2f;
 
 
-    /*for(int i = -3; i < 3; ++i)
+    for(int i = -world_width/2; i < world_width/2; ++i)
     {
-        for(int k = -3; k < 3; ++k)
+        for(int k = -world_width/2; k < world_width/2; ++k)
         {
-Chunk test_chunk(glm::vec2(i,k), registry, wrap, worldmap);
-
-    test_chunk.rebuild();
+            world[i + world_width/2][k+world_width/2] = Chunk(glm::vec2(i,k), registry, wrap, worldmap).rebuild();
         }
-    }*/
+    }
     
 
 
@@ -163,10 +169,10 @@ Chunk test_chunk(glm::vec2(i,k), registry, wrap, worldmap);
 
     auto meshes_view = registry.view<MeshComponent>();
 
+        //cformation.set_position(wrap.cameraPos);
     while (!glfwWindowShouldClose(wrap.window))
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        cformation.set_position(wrap.cameraPos);
         if (wrap.activeState.forward)
         {
 
@@ -205,7 +211,7 @@ Chunk test_chunk(glm::vec2(i,k), registry, wrap, worldmap);
 
         if(!grounded)
         {
-            wrap.activeState.upVelocity = std::max(wrap.activeState.upVelocity + ((GRAV * -deltaTime) * 0.020f), -(GRAV * deltaTime));
+            wrap.activeState.upVelocity = std::max(wrap.activeState.upVelocity + ((GRAV * -deltaTime) * (deltaTime*10)), -(GRAV * deltaTime));
             wrap.activeState.upVelocity = std::min(wrap.activeState.upVelocity, (GRAV * deltaTime)*2.0f);
         }
 
@@ -230,10 +236,16 @@ Chunk test_chunk(glm::vec2(i,k), registry, wrap, worldmap);
 
             if(cage.colliding.size() > 0)
             {
+                std::vector<glm::vec3> applied_dirs;
                 for(Side& side : cage.colliding)
                 {
+
+                    if(std::find(applied_dirs.begin(), applied_dirs.end(), CollisionCage::normals[side]) == applied_dirs.end())
+                    {
+                        desired_movement += CollisionCage::normals[side] * (float)cage.penetration[side];
+                        applied_dirs.push_back(CollisionCage::normals[side]);
+                    }
                     //std::cout << "penet: " << cage.penetration[side] << std::endl;
-                    desired_movement += CollisionCage::normals[side] * (float)cage.penetration[side];
                     
                     if(side == FLOOR)
                     {

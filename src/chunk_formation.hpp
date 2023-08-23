@@ -6,7 +6,7 @@
 #include "inttup.hpp"
 
 #ifndef LOAD_WIDTH
-#define LOAD_WIDTH 4
+#define LOAD_WIDTH 6
 #endif
 
 class ChunkFormation {
