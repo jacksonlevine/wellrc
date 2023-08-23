@@ -41,8 +41,8 @@
 #define GUITEXT_IMP
 #include "gui_text.hpp"
 
-//#define CHUNKFORMATION_IMP
-//#include "chunk_formation.hpp"
+#define CHUNKFORMATION_IMP
+#include "chunk_formation.hpp"
 
 #include <entt/entt.hpp>
 #include <cstdlib>
@@ -55,7 +55,7 @@ std::unordered_map<IntTup, int, IntTupHash> worldmap;
 entt::registry registry;
 
 CollisionCage cage(wrap, worldmap, registry);
-//ChunkFormation cformation(wrap, worldmap, registry);
+ChunkFormation cformation(wrap, worldmap, registry);
 
 
 
@@ -155,13 +155,13 @@ int main() {
     float user_width_half = 0.2f;
 
 
-    for(int i = -world_width/2; i < world_width/2; ++i)
+    /*for(int i = -world_width/2; i < world_width/2; ++i)
     {
         for(int k = -world_width/2; k < world_width/2; ++k)
         {
             world[i + world_width/2][k+world_width/2] = Chunk(glm::vec2(i,k), registry, wrap, worldmap).rebuild();
         }
-    }
+    }*/
     
 
 
@@ -169,9 +169,10 @@ int main() {
 
     auto meshes_view = registry.view<MeshComponent>();
 
-        //cformation.set_position(wrap.cameraPos);
+        
     while (!glfwWindowShouldClose(wrap.window))
     {
+        cformation.set_position(wrap.cameraPos);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         if (wrap.activeState.forward)
         {

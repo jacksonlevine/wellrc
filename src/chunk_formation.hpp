@@ -6,7 +6,7 @@
 #include "inttup.hpp"
 
 #ifndef LOAD_WIDTH
-#define LOAD_WIDTH 6
+#define LOAD_WIDTH 4
 #endif
 
 class ChunkFormation {
@@ -29,9 +29,19 @@ void ChunkFormation::set_position(glm::vec3& camera_pos) {
 
     glm::vec3 chunk_f_pos = camera_pos / (float)CHUNK_WIDTH;
     //std::cout << "chunk F pos: " << chunk_f_pos.x  << " " << chunk_f_pos.z << std::endl;
+    static bool initial_gen = false;
+    if(!initial_gen)
+    {
+        for(int i = 0; i < LOAD_WIDTH * LOAD_WIDTH; ++i)
+        {
+            IntTup new_pos = positions[i];
+            chunks[i].move_to(new_pos);
+            chunks[i].rebuild();
+        }
+        initial_gen = true;
+    }
 
-
-    static IntTup last_pos(9999,9999);
+    static IntTup last_pos(0,0);
 
     IntTup chunk_i_pos(
         static_cast<int>(std::round(chunk_f_pos.x)),
@@ -39,9 +49,11 @@ void ChunkFormation::set_position(glm::vec3& camera_pos) {
         static_cast<int>(std::round(chunk_f_pos.z)));
     //std::cout << "chunk I pos: " << chunk_i_pos.x << " " << chunk_i_pos.z << std::endl;
 
+    static std::vector<IntTup> positions_loaded;
+
     if(chunk_i_pos != last_pos)
     {
-        //std::cout << "Not equal" << std::endl;
+        //std::cout << "Movement: " << chunk_i_pos.x - last_pos.x << " " << chunk_i_pos.z - last_pos.z <<  std::endl;
         last_pos = chunk_i_pos;
 
         for(int i = 0; i < LOAD_WIDTH * LOAD_WIDTH; ++i)
@@ -51,7 +63,6 @@ void ChunkFormation::set_position(glm::vec3& camera_pos) {
             chunks[i].rebuild();
         }
     }
-
 
 }
 
