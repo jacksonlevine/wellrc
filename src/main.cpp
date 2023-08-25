@@ -182,7 +182,8 @@ int main() {
             wrap.activeState.forwardVelocity *= .400f;
         }
         update_show_vars();
-        cage.update_readings(wrap.cameraPos + glm::vec3(0, -1.0, 0));
+        glm::vec3 collision_cage_center = wrap.cameraPos + glm::vec3(0, -1.0, 0);
+        cage.update_readings(collision_cage_center);
         if(wrap.activeState.jump && grounded)
         {
             wrap.activeState.upVelocity += 5.0f;
