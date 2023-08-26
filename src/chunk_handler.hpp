@@ -89,7 +89,7 @@ Chunk& Chunk::rebuild()
                     {
                         if(m_world->find(neighbor.tup) == m_world->end())
                         {
-                            Cube::stamp_face(neighbor.face, tup.x, tup.y, tup.z, face, verts, cols, uvs);
+                            Cube::stamp_face(neighbor.face, tup.x, tup.y, tup.z, face, verts, cols, uvs, *m_world);
                         }
                     }
                 }

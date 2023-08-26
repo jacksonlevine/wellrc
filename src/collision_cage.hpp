@@ -157,7 +157,8 @@ void CollisionCage::debug_display()
                              TextureFace(10,10),
                              verts,
                              cols,
-                             uvs);
+                             uvs,
+                             m_world);
         }
 
         if (!m_reg.all_of<MeshComponent>(entities[side]))

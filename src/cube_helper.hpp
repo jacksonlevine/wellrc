@@ -4,6 +4,10 @@
 #include <vector>
 #include <unordered_map>
 #include "inttup.hpp"
+#include <cmath>
+#include <cfenv>
+#include <climits>
+#include <iostream>
 
 enum CubeFace {
     TOP = 0, BOTTOM, LEFT, RIGHT, FRONT, BACK
@@ -19,7 +23,8 @@ public:
                            TextureFace& tex,
                            std::vector<GLfloat>& verts,
                            std::vector<GLfloat>& cols,
-                           std::vector<GLfloat>& uvs);
+                           std::vector<GLfloat>& uvs,
+                           std::unordered_map<IntTup, int, IntTupHash>& worldref);
 };
 
 #ifdef CUBE_HELPER_IMPLEMENTATION
@@ -86,47 +91,107 @@ void Cube::stamp_face(CubeFace face,
                       TextureFace& tex,
                       std::vector<GLfloat>& verts,
                       std::vector<GLfloat>& cols,
-                      std::vector<GLfloat>& uvs)
+                      std::vector<GLfloat>& uvs,
+                      std::unordered_map<IntTup, int, IntTupHash>& worldref)
 {
 
-    glm::vec3 verties[6] = { glm::vec3(Cube::faces[face][0] + (float)x, Cube::faces[face][1] + (float)y, Cube::faces[face][2] + (float)z),
-   glm::vec3(  Cube::faces[face][3] + (float)x, Cube::faces[face][4] + (float)y, Cube::faces[face][5] + (float)z),
-    glm::vec3(  Cube::faces[face][6] + (float)x, Cube::faces[face][7] + (float)y, Cube::faces[face][8] + (float)z),
+    glm::vec3 verties[6] = { glm::vec3(Cube::faces[face][0], Cube::faces[face][1], Cube::faces[face][2]),
+   glm::vec3(  Cube::faces[face][3], Cube::faces[face][4], Cube::faces[face][5]),
+    glm::vec3(  Cube::faces[face][6], Cube::faces[face][7], Cube::faces[face][8]),
 
-     glm::vec3( Cube::faces[face][9] + (float)x, Cube::faces[face][10] + (float)y, Cube::faces[face][11] + (float)z),
-     glm::vec3( Cube::faces[face][12] + (float)x, Cube::faces[face][13] + (float)y, Cube::faces[face][14] + (float)z),
-       glm::vec3(Cube::faces[face][15] + (float)x, Cube::faces[face][16] + (float)y, Cube::faces[face][17] + (float)z),
+     glm::vec3( Cube::faces[face][9], Cube::faces[face][10], Cube::faces[face][11]),
+     glm::vec3( Cube::faces[face][12], Cube::faces[face][13], Cube::faces[face][14]),
+       glm::vec3(Cube::faces[face][15], Cube::faces[face][16], Cube::faces[face][17])
   };
+  
+  glm::vec3 pos(x,y,z);
 
+
+   auto vert1 =     verties[0]+ pos;
+   auto vert2 =       verties[1]+ pos;
+   auto vert3 =       verties[2]+ pos;
+  auto vert4 =        verties[3]+ pos;
+  auto vert5 =        verties[4]+ pos;
+  auto vert6 =        verties[5]+ pos;
 
     verts.insert(verts.end(), {
-        verties[0],
-        verties[1],
-verties[2],
-    verties[3],
-    verties[4],
-    verties[5]
-
-  });
+        vert1.x, vert1.y, vert1.z,
+    vert2.x, vert2.y, vert2.z,
+    vert3.x, vert3.y, vert3.z,
+    
+    vert4.x, vert4.y, vert4.z,
+    vert5.x, vert5.y, vert5.z,
+    vert6.x, vert6.y, vert6.z
+     });
 
     float bri = face == TOP ? 1.0f : face == BOTTOM ? 0.4f : (face == LEFT || face == RIGHT) ? 0.6f : 0.8f;
+
+    std::vector<GLfloat> brichange;
+
+    GLfloat changes[4] = {
+                -0.0f,
+                -0.0f,
+               -0.04f,
+                -0.05f
+              };
     
    for(int i = 0; i < 6; ++i) {
-  glm::vec3 spot = verties[i]*1.2f;
-  glm::vec3 
-  } 
+       glm::vec3 the_point = pos + verties[i];
+      glm::vec3 outward = pos + verties[i] +  (glm::vec3(verties[i].x, 0, verties[i].z) * 1.2f);
+
+      int xx = static_cast<int>(std::round(outward.x));
+      int zz = static_cast<int>(std::round(outward.z));
+      int yy = static_cast<int>(std::ceil(outward.y+0.2f));
+     
+      IntTup spots[3] = {
+        IntTup(xx,yy,zz),
+        IntTup(xx,yy,the_point.z),
+        IntTup(the_point.x,yy,zz)
+      };
+/*
+    std::cout << "Our spot: " << std::endl;
+    std::cout << the_point.x << " " << the_point.y << " " << the_point.z << std::endl;
     
+    for(int ii = 0; ii < 3; ii++)
+  {
+      std::cout << "Neighbor " << ii << ": " << std::endl;
+     std::cout << spots[ii].x << " " << spots[ii].y << " " << spots[ii].z << std::endl;
+
+    }
+*/
+      int count = 0;
+
+      for(int ii = 0; ii < 3; ++ii)
+          {
+              if(worldref.find(spots[ii]) != worldref.end())
+              {
+                  count += 1;
+              }
+          }
+
+    //std::cout << "Count: " << count << std::endl;
+      brichange.push_back(changes[count]);
+
+    } 
+  /*std::cout << "brichange: " << std::endl;
+  for(float s : brichange)
+{
+      std::cout << s << std::endl;
+  }*/
+
     cols.insert(cols.end(), {
-        bri, bri, bri,
-        bri, bri, bri,
-        bri, bri, bri,
+        bri + brichange[0] * 4.0f,  bri + brichange[0] * 4.0f, bri + brichange[0] * 4.0f,    
+bri + brichange[1] * 4.0f,  bri + brichange[1] * 4.0f, bri + brichange[1] * 4.0f, 
+bri + brichange[2] * 4.0f,  bri + brichange[2] * 4.0f, bri + brichange[2] * 4.0f, 
 
-        bri, bri, bri,
-        bri, bri, bri,
-        bri, bri, bri
-    });
+bri + brichange[3] * 4.0f,  bri + brichange[3] * 4.0f, bri + brichange[3] * 4.0f, 
+bri + brichange[4] * 4.0f,  bri + brichange[4] * 4.0f, bri + brichange[4] * 4.0f, 
+bri + brichange[5] * 4.0f,  bri + brichange[5] * 4.0f, bri + brichange[5] * 4.0f
 
-    uvs.insert(uvs.end(), {
+
+
+              });
+  uvs.insert(uvs.end(), {
         tex.bl.x, tex.bl.y,
         tex.br.x, tex.br.y,
         tex.tr.x, tex.tr.y,
