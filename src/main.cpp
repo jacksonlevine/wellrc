@@ -232,20 +232,24 @@ int main() {
             glm::vec3 user_center = wrap.cameraPos + glm::vec3(0, -0.5, 0);
             //std::cout << "USER CENTER " << user_center.x << " " << user_center.y << " " << user_center.z << std::endl;
             //std::cout << "USER CENTER WITH RAW MOVE APPLIED: " << (user_center + desired_movement).x << " " << (user_center + desired_movement).y << " " << (user_center + desired_movement).z << std::endl;
-            user.set_center(user_center + desired_movement,  0.85f , user_width_half);
+       std::vector<glm::vec3> corrections_made;
+
+      for(float k = 0; k < 1.1f; k += .1f)
+      {
+          user.set_center(glm::mix(user_center, user_center + desired_movement, k),  0.85f , user_width_half);
 
             cage.update_colliding(user);
 
             if(cage.colliding.size() > 0)
             {
-                std::vector<glm::vec3> applied_dirs;
+              corrections_made.clear();
                 for(Side& side : cage.colliding)
                 {
 
-                    if(std::find(applied_dirs.begin(), applied_dirs.end(), CollisionCage::normals[side]) == applied_dirs.end())
+                    if(std::find(corrections_made.begin(), corrections_made.end(), CollisionCage::normals[side]) == corrections_made.end())
                     {
                         desired_movement += CollisionCage::normals[side] * (float)cage.penetration[side];
-                        applied_dirs.push_back(CollisionCage::normals[side]);
+                        corrections_made.push_back(CollisionCage::normals[side]);
                     }
                     //std::cout << "penet: " << cage.penetration[side] << std::endl;
                     
@@ -258,9 +262,13 @@ int main() {
                     }
                     //std::cout << "change being made: " << (CollisionCage::normals[side] * (float)cage.penetration[side]).x << " " << (CollisionCage::normals[side] * (float)cage.penetration[side]).y << " " << (CollisionCage::normals[side] * (float)cage.penetration[side]).z << std::endl;
                 }
+           
+             }
+      }
+      if(glm::distance(user_center, user_center + desired_movement) < 4.0f) {
                 user.set_center(user_center + desired_movement, 0.85f , user_width_half);
+                  }
 
-            }
             //if(glm::distance(user.center + glm::vec3(0, 0.5, 0),wrap.cameraPos) < 0.5f )
                 wrap.cameraPos = user.center + glm::vec3(0, 0.5, 0);
 
