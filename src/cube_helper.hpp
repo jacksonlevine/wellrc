@@ -129,28 +129,29 @@ void Cube::stamp_face(CubeFace face,
     std::vector<GLfloat> brichange;
 
     GLfloat changes[4] = {
+                0.0f,
                 -0.0f,
-                -0.0f,
-               -0.01f,
+               -0.07f,
                 -0.07f
               };
     
    for(int i = 0; i < 6; ++i) {
        glm::vec3 the_point = pos + (verties[i] * 0.5f);
-      glm::vec3 outward = pos + verties[i];
+      glm::vec3 outward = pos + verties[i] * 1.6f;
 
       int xx = static_cast<int>(std::round(outward.x));
       int zz = static_cast<int>(std::round(outward.z));
       int yy = static_cast<int>(std::ceil(outward.y));
      
+      
       IntTup spots[3] = {
         IntTup(xx,yy,zz),
-        IntTup(xx,yy,the_point.z),
-        IntTup(the_point.x,yy,zz)
+        IntTup(xx,yy,static_cast<int>(std::round(the_point.z))),
+        IntTup(static_cast<int>(std::round(the_point.x)),yy,zz)
       };
 /*
     std::cout << "Our spot: " << std::endl;
-    std::cout << the_point.x << " " << the_point.y << " " << the_point.z << std::endl;
+    std::cout << pos.x << " " << pos.y << " " << pos.z << std::endl;
     
     for(int ii = 0; ii < 3; ii++)
   {
@@ -175,10 +176,6 @@ void Cube::stamp_face(CubeFace face,
                   solids[ii] = true;
               }
           }
-      if(solids[0] && !solids[1] && !solids[2]) //if its only 1 corner
-  {
-count = 0;
-    }
     //std::cout << "Count: " << count << std::endl;
       brichange.push_back(changes[count]);
 
