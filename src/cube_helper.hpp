@@ -124,13 +124,13 @@ void Cube::stamp_face(CubeFace face,
     vert6.x, vert6.y, vert6.z
      });
 
-    float bri = face == TOP ? 1.0f : face == BOTTOM ? 0.4f : (face == LEFT || face == RIGHT) ? 0.6f : 0.8f;
+    float bri = face == TOP ? 1.0f : face == BOTTOM ? 0.5f : (face == LEFT || face == RIGHT) ? 0.8f : 0.8f;
 
     std::vector<GLfloat> brichange;
 
     GLfloat changes[4] = {
                 0.0f,
-                -0.0f,
+                -0.02f,
                -0.07f,
                 -0.07f
               };
