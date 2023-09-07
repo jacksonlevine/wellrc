@@ -226,6 +226,9 @@ int GLWrapper::initializeGL()
     // Enable depth testing
     // glDepthMask(GL_TRUE);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CW);
     glDepthFunc(GL_LESS);
     // Set up GLM for 3D math
     model = glm::mat4(1.0f);
