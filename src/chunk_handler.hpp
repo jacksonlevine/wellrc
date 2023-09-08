@@ -10,7 +10,7 @@
 #include "inttup_neighbor.hpp"
 
 #ifndef CHUNK_WIDTH
-#define CHUNK_WIDTH 16
+#define CHUNK_WIDTH 18
 #endif
 
 #ifndef CHUNK_HEIGHT
